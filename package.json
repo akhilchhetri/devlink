@@ -1,0 +1,46 @@
+{
+  "name": "devlink",
+  "version": "1.0.0",
+  "description": "A social network for developers",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server":"nodemon server.js" 
+   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NealAkhil/devlink.git"
+  },
+  "keywords": [
+    "devlink",
+    "akhil",
+    "chheteri",
+    "developers",
+    "connect",
+    "link",
+    "social",
+    "media",
+    "developers",
+    "facebook",
+    "share"
+  ],
+  "author": "Akhil Chhetri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NealAkhil/devlink/issues"
+  },
+  "homepage": "https://github.com/NealAkhil/devlink#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.5.13",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "validator": "^11.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
