@@ -18,9 +18,6 @@ mongoose
     .then(()=> console.log("MongoDB connected"))
     .catch(err=>console.log(err));
 
-// // importing the product routes in the app.js
-// const productRoutes=require('./api/routes/product');
-
 // // importing the order routes in the app.js
 // const orderRoutes=require('./api/routes/order');
 
@@ -58,6 +55,19 @@ mongoose
 //         }
 //     });
 // });
+
+
+// importing routes for users
+const users= require("./routes/api/users");
+// importing profile route
+const profile= require("./routes/api/profile");
+// importing posts route
+const posts= require("./routes/api/posts");
+// use routes
+app.use('/api/posts', posts);
+app.use('/api/users', users);
+app.use('/api/profile', profile);
+
 app.get("/",(req, res)=>{
     res.send("Hello !!");
 });
