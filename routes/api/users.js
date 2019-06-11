@@ -1,3 +1,4 @@
+// initiate express
 const express= require('express');
 const router= express.Router();
 
@@ -7,8 +8,15 @@ const User= require('../../model/User');
 // using gravatar
 const gravatar= require('gravatar');
 
+// use JWT
+const jwt= require('jsonwebtoken');
+
 // bcytpt 
 const bcrypt= require('bcryptjs');
+
+// import keys
+const keys= require('../../config/keys');
+
 // @route   GET api/users/test
 // @desc    Tests users route
 // @access  Public
@@ -42,15 +50,14 @@ router.post('/register',(req, res)=>{
                 password: req.body.password
             });
 
-            bcrypt.genSalt(10, (err, salt)=>{
-                bcrypt.hash(newUser.password, salt,(err, hash)=>{
+                bcrypt.hash(newUser.password, 10,(err, hash)=>{
                     if(err) throw err;
                     newUser.password=hash;
                     newUser.save()
                     .then(user=> res.json(user))
                     .catch(err=> console.log(err));
                 });
-            });
+            
         }
     });
 });
@@ -60,25 +67,24 @@ router.post('/register',(req, res)=>{
 // @access  Public
 router.post('/login',(req, res)=>{
     const email= req.body.email;
-    const password= req.body.password;
+    const password1= req.body.password;
 
     // Find by User Email
     User.findOne({email: email}).exec()
-    .then(user=>{
+    .then((user)=>{
         // check for user
         if(!user){
-            return res.status(404).json({email: "User not found"});
+            return res.status(404).json({msg: "User not found"});
         }
-        // check password
-        bcrypt.compare(password, user.password)
-        .then(isMatch=>{
-            if(isMatch){
-                res.json({msg:"Sucess"});
+        bcrypt.compare(password1, user.password, (err, success)=>{
+            if(success){
+                res.json({msg:"Success"});
             }else{
-                return res.status(400).json({msg:"Password doesnot match"});
+                res.json({password:"password doesnot match"});
             }
         });
     })
     .catch();
 });
+
 module.exports= router;
