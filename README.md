@@ -1,2 +1,2 @@
 # devlink
-A demo project for Connecting developers in single platform, where developers can hang on virtually, share their contents and posts.
+This is CRUD RESTful API which will be used in Devlink App which can be used for linking the professional software develpers
