@@ -20,6 +20,8 @@ const bcrypt= require('bcryptjs');
 // import keys
 const keys= require('../../config/keys');
 
+// load validator
+const validateRegisterInput= require('../../validation/register');
 // @route   GET api/users/test
 // @desc    Tests users route
 // @access  Public
@@ -33,13 +35,19 @@ router.get('/test',(req, res)=>{
 // @desc    Register user
 // @access  Public
 router.post('/register',(req, res)=>{
+    const {errors, isValid}= validateRegisterInput(req.body);
+    // check validation
+    if(!isValid){
+        return res.status(400).json({errors});
+    }
     User.findOne({
         email: req.body.email
     })
     .exec()
     .then(user=>{
         if(user){
-            return res.status(400).json({email:"Email Already Exists"});
+            errors.email="Email Already exists";
+            return res.status(400).json(errors);
         }else{
             const avatar= gravatar.url(req.body.email, {
                 s: '200', //size 
@@ -106,6 +114,10 @@ router.post('/login',(req, res)=>{
 // @desc    abc route to check protected route
 // @access  Private
 router.get('/abc', passport.authenticate('jwt', { session: false }), function(req, res) {
-    res.json( req.user );
+    res.json({
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email
+    });
   });
 module.exports= router;
