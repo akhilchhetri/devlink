@@ -2,6 +2,9 @@
 const express= require('express');
 const router= express.Router();
 
+// passport
+const passport= require('passport');
+
 // load user model
 const User= require('../../model/User');
 
@@ -78,26 +81,31 @@ router.post('/login',(req, res)=>{
         }
         bcrypt.compare(password1, user.password, (err, success)=>{
             if(success){
-                const payload={id: user.id, name: user.name, avatar: user.avatar};// creating JWT payload
+                const payload={id: user.id,email:user.email, name: user.name, avatar: user.avatar};// creating JWT payload
                 // sign token
                 jwt.sign(
                     payload,
                     keys.secret,
-                    {expiresIn: '3600'},
-                    (err, token)=>{
+                    { expiresIn: 3600 },
+                    (err, token) => {
                         res.json({
-                            msg:"Login successfull Success",
-                            // user:user,
+                            msg:"Login Success",
                             token: "Bearer " + token
                         });
                     }
                 );
             }else{
-                res.json({password:"password doesnot match"});
+                res.status(400).json({password:"password Incorrect"});
             }
         });
     })
     .catch();
 });
 
+// @route   GET api/users/abc
+// @desc    abc route to check protected route
+// @access  Private
+router.get('/abc', passport.authenticate('jwt', { session: false }), function(req, res) {
+    res.json( req.user );
+  });
 module.exports= router;
