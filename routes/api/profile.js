@@ -3,6 +3,8 @@ const passport= require('passport');
 const Profile= require('../../model/Profile');
 const User= require('../../model/User');
 
+// load validation
+const validateProfileInput= require('../../validation/profile');
 const express= require("express");
 const router= express.Router();
 
@@ -38,6 +40,10 @@ router.get('/',passport.authenticate('jwt', {session: false}),(req, res)=>{
 // @desc    POST current users profile 
 // @access  Private
 router.post('/',passport.authenticate('jwt',{session: false}), (req, res)=>{
+    // destructing
+    const {errors, isValid} = validateProfileInput(req.body);
+    // check validate
+   
     const profileFields={};
     profileFields.user=req.user.id;
     if(req.body.handle) profileFields.handle= req.body.handle;
@@ -45,19 +51,19 @@ router.post('/',passport.authenticate('jwt',{session: false}), (req, res)=>{
     if(req.body.website) profileFields.website= req.body.website;
     if(req.body.location) profileFields.location= req.body.location;
     if(req.body.status) profileFields.status= req.body.status;
-
-    if(typeof req.body.skills !== 'undefined'){
-        profileFields.skills= req.body.skills.split(',');
+    const skills= req.body.skills;
+    if(typeof(req.body.skills !== undefined)){
+        profileFields.skills= skills.split(",");
     }
     if(req.body.bio) profileFields.bio= req.body.bio;
-    if(req.body.github_username) profileFields.bio= req.body.github_username;
+    if(req.body.github_username) profileFields.github_username= req.body.github_username;
    
     // social
     profileFields.social={};
     if(req.body.youtube) profileFields.social.youtube= req.body.youtube;
-    if(req.body.facebook) profileFields.social.youtube= req.body.facebook;
-    if(req.body.twitter) profileFields.social.youtube= req.body.twitter;
-    if(req.body.linkedin) profileFields.social.youtube= req.body.linkedin;
+    if(req.body.facebook) profileFields.social.facebook= req.body.facebook;
+    if(req.body.twitter) profileFields.social.twitter= req.body.twitter;
+    if(req.body.linkedin) profileFields.social.linkedin= req.body.linkedin;
 
 
     // if(req.body.date) profileFields.bio= req.body.date;
@@ -83,6 +89,10 @@ router.post('/',passport.authenticate('jwt',{session: false}), (req, res)=>{
                 });
         }
     });
+    if(!isValid){
+        // return errors
+        res.status(400).json(errors);
+    }
 
 });
 
