@@ -182,5 +182,80 @@ router.post('/experience', passport.authenticate('jwt',{session:false}), (req, r
         })
 });
 // adding eduction
+// @route   POST api/profile/education
+// @desc    POST the education
+// @access  Private
+router.post('/education', passport.authenticate('jwt',{session:false}), (req, res)=>{
+    // import the ValidateEducaitionInput and destruct into erros and isValid
+    const {errors, isValid} = validateEducationInput(req.body);
+    // validation checking
+    if(!isValid){
+        // return errors
+        res.status(400).json(errors);
+    }
+    Profile.findOne({user: req.user.id})
+        .exec()
+        .then(profile=>{
+            if(profile){
+                // extracting the experience fields and assigning on newExp object
+                const newEdu={
+                    school: req.body.school,
+                    degree: req.body.degree,
+                    fieldofstudy: req.body.fieldofstudy,
+                    from: req.body.from,
+                    to: req.body.to,
+                    current: req.body.current,
+                    description: req.body.description
+                }
+                // add the eduction to the profile by unshifting technique
+                profile.education.unshift(newEdu);
+                // Saving new profile on Profile
+                Profile(profile).save().then(profile=> res.json(profile));
+            }
+        })
+});
 
+// Deleting experience
+// @route   DELETE api/profile/education/:exp_id
+// @desc    Delete experience from profile
+// @access  Private
+router.delete('/experience/:exp_id', passport.authenticate('jwt',{session:false}), (req, res)=>{
+    Profile.findOne({user: req.user.id})
+        .exec()
+        .then(profile=>{
+            // Get remote index
+            const removeIndex= profile.experience
+                .map(item=> item.id)
+                .indexOf(req.params.exp_id);
+            // splice the array
+            profile.experience.splice(removeIndex, 1);
+
+            // save
+            Profile(profile).save().then(profile=> res.json(profile));
+        })
+        .catch(err=> res.status(404).json(err));
+    
+});
+
+// Deleting experience
+// @route   DELETE api/profile/education/:exp_id
+// @desc    Delete experience from profile
+// @access  Private
+router.delete('/education/:edu_id', passport.authenticate('jwt',{session:false}), (req, res)=>{
+    Profile.findOne({user: req.user.id})
+        .exec()
+        .then(profile=>{
+            // Get remote index
+            const removeIndex= profile.education
+                .map(item=> item.id)
+                .indexOf(req.params.edu_id);
+            // splice the array
+            profile.education.splice(removeIndex, 1);
+
+            // save
+            Profile(profile).save().then(profile=> res.json(profile));
+        })
+        .catch(err=> res.status(404).json(err));
+    
+});
 module.exports= router;
