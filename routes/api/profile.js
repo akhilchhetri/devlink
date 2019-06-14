@@ -5,17 +5,11 @@ const User= require('../../model/User');
 
 // load validation
 const validateProfileInput= require('../../validation/profile');
+const validateExperienceInput= require('../../validation/experience');
+const validateEducationInput= require('../../validation/education');
+
 const express= require("express");
 const router= express.Router();
-
-// @route   GET api/profile/test
-// @desc    Tests profile route
-// @access  Public
-// router.get('/test',(req, res)=>{
-//     res.json({
-//         "msg":"Profile works"
-//     });
-// });
 
 // @route   GET api/profile/
 // @desc    Get current users profile 
@@ -152,4 +146,41 @@ router.get('/all', (req, res)=>{
     })
     .catch(err=> res.status(404).json({profile: "There are no profile found"}));
 });
+
+// adding experinece
+// @route   POST api/profile/experience
+// @desc    POST the experience
+// @access  Private
+router.post('/experience', passport.authenticate('jwt',{session:false}), (req, res)=>{
+    // import the ValidateExperienceInput and destruct into erros and isValid
+    console.log(req.body);
+    const {errors, isValid} = validateExperienceInput(req.body);
+    // validation checking
+    if(!isValid){
+        // return errors
+        res.status(400).json(errors);
+    }
+    Profile.findOne({user: req.user.id})
+        .exec()
+        .then(profile=>{
+            if(profile){
+                // extracting the experience fields and assigning on newExp object
+                const newExp={
+                    title: req.body.title,
+                    company: req.body.company,
+                    location: req.body.location,
+                    from: req.body.from,
+                    to: req.body.to,
+                    current: req.body.current,
+                    description: req.body.description
+                }
+                // add the experience to the profile by unshifting technique
+                profile.experience.unshift(newExp);
+                // Saving new profile on Profile
+                Profile(profile).save().then(profile=> res.json(profile));
+            }
+        })
+});
+// adding eduction
+
 module.exports= router;
