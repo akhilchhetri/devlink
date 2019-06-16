@@ -167,4 +167,56 @@ router.post('/unlike/:post_id',passport.authenticate('jwt',{session: false}),(re
     .catch(err=> res.status(404).json({nopostfound: "No post found"}));
 });
 
+// @route   POST api/posts/comment/:post_id
+// @desc    POST comment on single post
+// @access  Private
+router.post('/comment/:post_id',passport.authenticate('jwt',{session: false}),(req, res)=>{
+    const {errors, isValid} = validatePostInput(req.body);
+    // validation checking
+    if(!isValid){
+        // return errors
+        res.status(400).json(errors);
+    }
+    console.log(req.params.post_id);
+        Post.findById(req.params.post_id)
+        .then(post=>{
+            const newComment={
+                text: req.body.text,
+                name: req.body.name,
+                avatar: req.user.avatar,
+                user: req.user.id
+            };
+            // else
+            post.comment.unshift(newComment);
+            // saving post
+            post.save().then(post=> res.json(post));
+        })
+        .catch(err=>{
+            res.status(404).json({postnotfound: "Post not found"});
+        });
+});
+
+// @route   DELETE api/posts/comment/:post_id/:comment_id
+// @desc    DELETE comment from single post
+// @access  Private
+router.delete('/comment/:post_id/:comment_id',passport.authenticate('jwt',{session: false}),(req, res)=>{
+    console.log(req.params.post_id);
+        // Post.findOne({"comment._id": req.params.comment_id},"user comment")
+        Post.findById(req.params.post_id)        
+        .then(post=>{
+                if(post.comment.filter(comment=> comment._id.toString()=== req.params.comment_id.toString()).length === 0){
+                    res.status(404).json({commentnotfound:"Comment not found"});
+                }
+                // const likeIndex= post.likes.findIndex(like=> like.user.toString()=== req.user.id.toString());
+                const commentIndex= post.comment.findIndex(comment=> comment._id.toString()=== req.params.comment_id);
+                post.comment.splice(commentIndex, 1);
+                // saving post
+                post.save().then(post=> res.json(post));   
+
+        })
+        .catch(err=>{
+            res.status(404).json({postnotfound: "Post not found"});
+        });
+    });
+
 module.exports= router;
